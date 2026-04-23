@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tetris Piece Rotation Trainer</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background: #111;
+        color: white;
+    }
+
+    h1 {
+        margin-top: 20px;
+    }
+
+    select {
+        padding: 8px;
+        font-size: 16px;
+        margin: 10px;
+    }
+
+    #grid {
+        display: grid;
+        grid-template-columns: repeat(4, 50px);
+        grid-template-rows: repeat(4, 50px);
+        gap: 4px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .cell {
+        width: 50px;
+        height: 50px;
+        background: #222;
+    }
+
+    .filled {
+        background: red;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Tetris Rotation Trainer</h1>
+
+<select id="pieceSelect">
+    <option value="I">I</option>
+    <option value="O">O</option>
+    <option value="L">L</option>
+    <option value="J">J</option>
+    <option value="T">T</option>
+    <option value="S">S</option>
+    <option value="Z">Z</option>
+</select>
+
+<p>Press <b>A</b> = Rotate Left | <b>D</b> = Flip</p>
+
+<div id="grid"></div>
+
+<script>
+const grid = document.getElementById("grid");
+const select = document.getElementById("pieceSelect");
+
+// Colors per piece
+const colors = {
+    I: "cyan",
+    O: "yellow",
+    L: "orange",
+    J: "blue",
+    T: "purple",
+    S: "green",
+    Z: "red"
+};
+
+// Piece definitions (4x4 matrix)
+const pieces = {
+    I: [
+        [0,0,0,0],
+        [1,1,1,1],
+        [0,0,0,0],
+        [0,0,0,0]
+    ],
+    O: [
+        [0,1,1,0],
+        [0,1,1,0],
+        [0,0,0,0],
+        [0,0,0,0]
+    ],
+    L: [
+        [1,0,0,0],
+        [1,1,1,0],
+        [0,0,0,0],
+        [0,0,0,0]
+    ],
+    J: [
+        [0,0,1,0],
+        [1,1,1,0],
+        [0,0,0,0],
+        [0,0,0,0]
+    ],
+    T: [
+        [0,1,0,0],
+        [1,1,1,0],
+        [0,0,0,0],
+        [0,0,0,0]
+    ],
+    S: [
+        [0,1,1,0],
+        [1,1,0,0],
+        [0,0,0,0],
+        [0,0,0,0]
+    ],
+    Z: [
+        [1,1,0,0],
+        [0,1,1,0],
+        [0,0,0,0],
+        [0,0,0,0]
+    ]
+};
+
+let currentMatrix = [];
+
+// Create grid cells
+function createGrid() {
+    grid.innerHTML = "";
+    for (let i = 0; i < 16; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        grid.appendChild(cell);
+    }
+}
+
+// Draw matrix
+function draw(matrix) {
+    const cells = document.querySelectorAll(".cell");
+    cells.forEach(c => {
+        c.classList.remove("filled");
+        c.style.background = "#222";
+    });
+
+    matrix.forEach((row, r) => {
+        row.forEach((val, c) => {
+            if (val === 1) {
+                const index = r * 4 + c;
+                cells[index].classList.add("filled");
+                cells[index].style.background = colors[select.value];
+            }
+        });
+    });
+}
+
+// Rotate 90° CCW
+function rotateLeft(matrix) {
+    const size = matrix.length;
+    let result = Array.from({length: size}, () => Array(size).fill(0));
+
+    for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+            result[size - c - 1][r] = matrix[r][c];
+        }
+    }
+    return result;
+}
+
+// Flip horizontally
+function flip(matrix) {
+    return matrix.map(row => [...row].reverse());
+}
+
+// Load new piece
+function loadPiece(type) {
+    currentMatrix = JSON.parse(JSON.stringify(pieces[type]));
+    draw(currentMatrix);
+}
+
+// Events
+select.addEventListener("change", () => {
+    loadPiece(select.value);
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.key.toLowerCase() === "a") {
+        currentMatrix = rotateLeft(currentMatrix);
+        draw(currentMatrix);
+    }
+    if (e.key.toLowerCase() === "d") {
+        currentMatrix = flip(currentMatrix);
+        draw(currentMatrix);
+    }
+});
+
+// Init
+createGrid();
+loadPiece("I");
+</script>
+
+</body>
+</html>
