@@ -168,7 +168,8 @@ function rotateLeft(matrix) {
 
 // Flip horizontally
 function flip(matrix) {
-    return matrix.map(row => [...row].reverse());
+    // return matrix.map(row => [...row].reverse());
+    return [...matrix].reverse();
 }
 
 // Load new piece
